@@ -31,7 +31,8 @@ import {
   Copy, 
   RefreshCw,
   User, 
-  Download
+  Download,
+  Smartphone
 } from 'lucide-react';
 
 const App: React.FC = () => {
