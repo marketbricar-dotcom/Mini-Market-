@@ -1,0 +1,10 @@
+{
+  "name": "MARKET 09/08",
+  "description": "A comprehensive point-of-sale and inventory management system designed for the Venezuelan market, featuring dual-currency support (USD/BsF), inventory tracking, and AI-powered sales analysis.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
