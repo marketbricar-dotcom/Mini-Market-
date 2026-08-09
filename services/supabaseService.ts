@@ -1,14 +1,28 @@
 import { createClient } from '@supabase/supabase-js';
 import { Product, Sale, Currency, ProductCategory, PaymentMethod } from '../types';
 
+// Helper seguro para instanciar cliente Supabase sin que rompa la app si la URL es inválida
+function safeCreateClient(url: string, key: string) {
+  if (!url || !key) return null;
+  const trimmedUrl = url.trim();
+  const trimmedKey = key.trim();
+  if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
+    return null;
+  }
+  try {
+    return createClient(trimmedUrl, trimmedKey);
+  } catch (e) {
+    console.warn('Error al instanciar cliente de Supabase:', e);
+    return null;
+  }
+}
+
 // Leer credenciales desde variables de entorno o almacenamiento local
 let supabaseUrl = import.meta.env.VITE_SUPABASE_URL || localStorage.getItem('venstore_supabase_url') || '';
 let supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || localStorage.getItem('venstore_supabase_anon_key') || '';
 
 // Inicializar el cliente de Supabase
-export let supabase = supabaseUrl && supabaseAnonKey 
-  ? createClient(supabaseUrl, supabaseAnonKey) 
-  : null;
+export let supabase = safeCreateClient(supabaseUrl, supabaseAnonKey);
 
 export let rlsErrorListener: ((tableName: string, errorMsg: string) => void) | null = null;
 
@@ -22,12 +36,15 @@ export const supabaseService = {
   },
 
   updateCredentials(url: string, anonKey: string) {
-    if (url && anonKey) {
-      localStorage.setItem('venstore_supabase_url', url);
-      localStorage.setItem('venstore_supabase_anon_key', anonKey);
-      supabaseUrl = url;
-      supabaseAnonKey = anonKey;
-      supabase = createClient(url, anonKey);
+    const cleanUrl = (url || '').trim();
+    const cleanKey = (anonKey || '').trim();
+
+    if (cleanUrl && cleanKey) {
+      localStorage.setItem('venstore_supabase_url', cleanUrl);
+      localStorage.setItem('venstore_supabase_anon_key', cleanKey);
+      supabaseUrl = cleanUrl;
+      supabaseAnonKey = cleanKey;
+      supabase = safeCreateClient(cleanUrl, cleanKey);
     } else {
       localStorage.removeItem('venstore_supabase_url');
       localStorage.removeItem('venstore_supabase_anon_key');
